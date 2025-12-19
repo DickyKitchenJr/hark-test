@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import IndividualItem from "./IndividualItem";
 
 type Item = {
   name: string;
@@ -12,37 +13,29 @@ interface ListProps {
 const List: React.FC<ListProps> = ({ items }) => {
   const [selectedText, setSelectedText] = useState<string[]>([]);
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = event.target;
-    if (checked) {
-      setSelectedText([...selectedText, value]);
-    }
-    if (!checked) {
-      setSelectedText((prev) => prev.filter((text) => text !== value));
-    }
-  };
+  const handleCheckboxChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { value, checked } = event.target;
+
+      setSelectedText((prev) =>
+        checked ? [...prev, value] : prev.filter((text) => text !== value)
+      );
+    },
+    []
+  );
 
   return (
     <>
-      {console.log("Rendering List component")}
       <p>{selectedText.join(", ")}</p>
       <div className="List">
         {items.map((item) => (
-          <label
-            htmlFor={item.name}
+          <IndividualItem
             key={item.name}
-            className={`List__item List__item--${item.color}`}
-          >
-            {item.name}
-            <input
-              name={item.name}
-              id={item.name}
-              type="checkbox"
-              key={item.name}
-              value={item.name}
-              onChange={handleCheckboxChange}
-            />
-          </label>
+            name={item.name}
+            color={item.color}
+            checked={selectedText.includes(item.name)}
+            onChange={handleCheckboxChange}
+          />
         ))}
       </div>
     </>
